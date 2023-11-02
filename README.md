@@ -1,5 +1,5 @@
 # CS311_HW5_MSArray
- (Assignment 5)[https://www.cs.uaf.edu/~chappell/class/2023_fall/cs311/docs/d-assn05d.html] in Data Structures and Algorithms: Marvelously Smart Array
+ [https://www.cs.uaf.edu/~chappell/class/2023_fall/cs311/docs/d-assn05d.html](Assignment 5) in Data Structures and Algorithms: Marvelously Smart Array
  Lisa Jacklin && Jewel Maldonado
 
 ## Requirements:  
@@ -10,7 +10,7 @@
     - the array will be resizable and exception safe as well as efficient
     - the key to the assignment is exception safety, make sure the exceptions thrown by value-type operations are properly handled and that all safety guarantees are ddocumented
     **Instructions**
-    - All (coding standards)[https://www.cs.uaf.edu/~chappell/class/2023_fall/cs311/docs/coding_std.html] now apply.
+    - All [https://www.cs.uaf.edu/~chappell/class/2023_fall/cs311/docs/coding_std.html](coding standards) now apply.
     [] Name the class template "`TMSArray`" example a `TMSArray` whose items have type `double` would be declared as 
     ```cpp
     TMSArray<double>```
