@@ -1,5 +1,5 @@
 # CS311_HW5_MSArray
- Homework 5 in Data Structures and Algorithms: Marvelously Smart Array
+ (Assignment 5)[https://www.cs.uaf.edu/~chappell/class/2023_fall/cs311/docs/d-assn05d.html] in Data Structures and Algorithms: Marvelously Smart Array
  Lisa Jacklin && Jewel Maldonado
 
 ## Requirements:  
