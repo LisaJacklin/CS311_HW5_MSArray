@@ -1,20 +1,18 @@
-// msarray.hpp  UNFINISHED
-// Glenn G. Chappell
-// 2023-10-17
+// msarray.hpp 
+// Lisa Jacklin && Jewel Maldonado
+// 2023-11-01
 //
 // For CS 311 Fall 2023
 // Header for class MSArray
 // Marvelously smart array of int
-// Preliminary to Assignment 5
+// Assignment 5
 
 #ifndef FILE_MSARRAY_HPP_INCLUDED
 #define FILE_MSARRAY_HPP_INCLUDED
 
-
 // *********************************************************************
 // class MSArray - Class definition
 // *********************************************************************
-
 
 // class MSArray
 // Marvelously Smart Array of int.
@@ -24,7 +22,7 @@
 // _data points to an array of value_type, allocated with new [], owned by *this, holding _size value_type values.
 // _data != nullptr iff _size > 0
 // fucnitons that do not copy, move swap resize??
-//
+
 class MSArray {
 
 // ***** MSArray: types *****
