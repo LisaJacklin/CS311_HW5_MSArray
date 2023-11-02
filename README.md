@@ -18,10 +18,10 @@
     - A `const TMSArray` should be one that doesn not allow modification of th eitems in its array. A non-`const TMSArray` should allow such modification.  
     - **You may not create any new implicit type conversions. (Hint: 1-parameter constructors, “explicit”.)**  
     - Include the following **public member types** and no others:  
-    ```cpp
-     value_type // The type of each item in the array
-     size_type // The type of the size of an array and an index into an array.
-     iterator // The type of a random-access iterator that allow modification of the item it references.
-     const_iterator // The type of a random-access iterator that does not allow modification of the item it references.
-    ```  
-    - 
+```cpp
+value_type // The type of each item in the array
+size_type // The type of the size of an array and an index into an array.
+iterator // The type of a random-access iterator that allow modification of the item it references.
+const_iterator // The type of a random-access iterator that does not allow modification of the item it references.
+```
+   
