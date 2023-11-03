@@ -9,8 +9,6 @@
 
 
 #include "msarray.hpp"  // For class MSArray definition
-#include <algorithm>
-using std::copy;
 
 
 // *********************************************************************
