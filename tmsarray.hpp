@@ -15,6 +15,7 @@
 // *********************************************************************
 #include <algorithm> //for std::
 using std::copy;
+#include <cstddef>   //for std::size_t
 
 // *********************************************************************
 // class MSArray - Class definition
@@ -45,7 +46,8 @@ public:
 public:
     //default ctor and ctor from size
     explicit MSArray( size_type thesize=0)
-        : _size(thesize), _data(new value_type[thesize])
+        : _size(thesize), _data(new value_type[thesize]) 
+       
     {}
     
     MSArray(size_type thesize=0)
@@ -108,17 +110,23 @@ public:
 public:
     value_type & operator[](size_type index)
     {     
+       if (index >= _size) index = _size -1;
+       if (index <0) index = 0;
+       
         return _data[index]; //*(_data+ index) take pointer and dereference it would be okay too
     }
 
     const value_type & operator[](size_type index) const
     {
+        if (index >= _size) index = _size -1;
+        if (index <0) index = 0;
+
         return _data[index]; //
     }
 
     size_type size() const
     {
-        return size;
+        return _size;
     }
 
     bool empty() const
