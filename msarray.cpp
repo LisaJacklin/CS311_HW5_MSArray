@@ -1,8 +1,6 @@
 // msarray.cpp  HAND-OFF
-// VERSION 6
-// Glenn G. Chappell
-// Started: 2023-10-17
-// Updated: 2023-10-25
+// Lisa Jacklin && Jewel Maldonado
+//2023-11-01
 //
 // For CS 311 Fall 2023
 // Source for class MSArray
