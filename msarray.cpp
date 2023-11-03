@@ -8,7 +8,7 @@
 // Preliminary to Assignment 5
 
 
-#include "msarray.hpp"  // For class MSArray definition
+#include "tmsarray.hpp"  // For class MSArray definition
 
 
 // *********************************************************************
