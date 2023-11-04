@@ -14,7 +14,7 @@
 //  Includes - cleans up source file
 // *********************************************************************
 #include <algorithm> //for std::
-using std::copy;
+using std::copy;     //to allow for copy to be used in Source
 #include <cstddef>   //for std::size_t
 
 // *********************************************************************
