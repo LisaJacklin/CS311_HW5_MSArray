@@ -1,127 +1,87 @@
-// msarray.hpp 
+// tmsarray.hpp
 // Lisa Jacklin && Jewel Maldonado
 // 2023-11-01
 //
 // For CS 311 Fall 2023
-// Header for class MSArray
-// Marvelously smart array of int
+// Header for template class TMSArray
+// Template for a Marvelously Smart array
 // Assignment 5
 
 #ifndef FILE_TMSARRAY_HPP_INCLUDED
 #define FILE_TMSARRAY_HPP_INCLUDED
 
-// *********************************************************************
-//  Includes - cleans up source file
-// *********************************************************************
-#include <algorithm> //for std::
-using std::copy;     //to allow for copy to be used in Source
-#include <cstddef>   //for std::size_t
+#include <algorithm> // For std::copy, std::rotate, std::swap, std::min
+#include <cstddef>   // For std::size_t
 
-// *********************************************************************
-// class MSArray - Class definition
-// *********************************************************************
-
-// class MSArray
-// Marvelously Smart Array of int.
+// class TMSArray
+// Template for a Marvelously Smart Array.
 // Resizable, copyable/movable, exception-safe.
-// Invariants:
-// _size >= 0
-// _data points to an array of value_type, allocated with new [], owned by *this, holding _size value_type values.
-// _data != nullptr iff _size > 0
-// fucnitons that do not copy, move swap resize??
+template <typename ValueType>
+class TMSArray {
 
-class MSArray {
-
-// ***** MSArray: types *****
+// ***** TMSArray: types *****
 public:
     using size_type = std::size_t;
-
-    using value_type = int;
-
+    using value_type = ValueType;
     using iterator = value_type *;
-
     using const_iterator = const value_type *;
 
-// ***** MSArray: ctors, op=, dctor *****
+// ***** TMSArray: ctors, op=, dctor *****
 public:
-    //default ctor and ctor from size
-    explicit MSArray( size_type thesize=0)
-        : _size(thesize), _data(new value_type[thesize]) 
-       
-    {}
-    
-    MSArray(size_type thesize=0)
-    {}
+    // Default ctor and ctor from size
+    explicit TMSArray(size_type thesize = 0)
+        : _size(thesize), _data(new value_type[thesize]) {}
 
-    //copy constructor
-    MSArray(const MSArray & other)
+    // Copy constructor
+    TMSArray(const TMSArray & other)
+        : _size(other._size), _data(new value_type[_size])
     {
-        //TODO: WRITE THIS
-        _size = other._size;
-        _data = new value_type[_size];
-        copy(other.begin(), other.end(), begin());
+        std::copy(other.begin(), other.end(), begin());
     }
 
-    //move constructor
-    MSArray(MSArray && other) noexcept
+    // Move constructor
+    TMSArray(TMSArray && other) noexcept
+        : _size(other._size), _data(other._data)
     {
-        //TODO: WRITE THIS
-        _size = other._size;
-        _data = other._data;
         other._size = 0;
         other._data = nullptr;
     }
 
-    //deconstructor
-    ~MSArray()
+    // Destructor
+    ~TMSArray()
     {
-        //it has current obj has respons to destrct this cause the obj owns it, think in terms of RAII
         delete [] _data;
     }
 
-    //copy assignment operator
-    MSArray & operator=(const MSArray & other)
+    // Copy assignment operator
+    TMSArray & operator=(const TMSArray & other)
     {
-        //TODO: WRITE THIS
-         if (this != &other) {
-            delete[] _data;
-            _size = other._size;
-            _data = new value_type[_size];
-            copy(other.begin(), other.end(), begin());
-        }
-        return *this;
-    }
-    //move assignment operator
-    MSArray & operator=(MSArray && other) noexcept
-    {
-        //TODO: WRITE THIS
-        //move is like a destructive copy
-          if (this != &other) {
-            delete[] _data;
-            _size = other._size;
-            _data = other._data;
-            other._size = 0;
-            other._data = nullptr;
+        if (this != &other) {
+            TMSArray temp(other); // Copy-and-swap idiom
+            swap(temp);
         }
         return *this;
     }
 
-// ***** MSArray: general public operators *****
+    // Move assignment operator
+    TMSArray & operator=(TMSArray && other) noexcept
+    {
+        if (this != &other) {
+            swap(other);
+        }
+        return *this;
+    }
+
+// ***** TMSArray: general public operators *****
 public:
     value_type & operator[](size_type index)
     {     
-       if (index >= _size) index = _size -1;
-       if (index <0) index = 0;
-       
-        return _data[index]; //*(_data+ index) take pointer and dereference it would be okay too
+        return _data[index]; // Access violation error checking should be handled externally
     }
 
     const value_type & operator[](size_type index) const
     {
-        if (index >= _size) index = _size -1;
-        if (index <0) index = 0;
-
-        return _data[index]; //
+        return _data[index]; // Access violation error checking should be handled externally
     }
 
     size_type size() const
@@ -131,10 +91,7 @@ public:
 
     bool empty() const
     {
-        // write this
-        //return _size == 0;
-        return size() == 0; // old school says efficieny issue, its making extra function call. but compilers are smart.
-        //return false; //dummy
+        return size() == 0;
     }
 
     iterator begin()
@@ -142,7 +99,7 @@ public:
         return _data;
     }
 
-    const iterator begin() const
+    const_iterator begin() const
     {
         return _data;
     }
@@ -150,31 +107,23 @@ public:
     iterator end()
     {
         return begin() + size();
-        //return _data;
     }
 
-    const iterator end() const
+    const_iterator end() const
     {
         return begin() + size();
     }
 
     void resize(size_type newsize)
     {
-        //write me
-         if (newsize != _size) {
-            value_type* newData = new value_type[newsize];
-            copy(begin(), begin() + std::min(_size, newsize), newData);
-            delete[] _data;
-            _data = newData;
-            _size = newsize;
-        }
+        TMSArray temp(newsize);
+        std::copy(begin(), begin() + std::min(_size, newsize), temp._data);
+        swap(temp);
     }
 
-    iterator insert(iterator pos,
-                    value_type value) // we pass by value, but for when we do it we pass by reference to const
+    iterator insert(iterator pos, const value_type & value)
     {
-        //write me
-         size_type index = pos - begin();
+        size_type index = pos - begin();
         resize(size() + 1);
         iterator newPos = begin() + index;
         std::rotate(newPos, end() - 1, end());
@@ -184,38 +133,36 @@ public:
 
     iterator erase(iterator pos)
     {
-        std::rotate(pos, pos + 1, end());
-        resize(size() - 1);
+        if (pos >= begin() && pos < end()) {
+            std::rotate(pos, pos + 1, end());
+            resize(size() - 1);
+        }
         return pos;
     }
 
-    void push_back(value_type value)
+    void push_back(const value_type & value)
     {
-        resize(size() + 1);
-        begin()[size()-1] - value;
+        insert(end(), value);
     }
 
     void pop_back()
     {
-        resize(size() -1);
+        if (size() > 0) {
+            resize(size() - 1);
+        }
     }
 
-    void swap(MSArray & other) noexcept //noexcept is a perm property of a function
+    void swap(TMSArray & other) noexcept
     {
         std::swap(_size, other._size);
         std::swap(_data, other._data);
     }
-// ***** MSArray: general public functions *****
-public:
 
-
-// ***** MSArray: data members *****
+// ***** TMSArray: data members *****
 private:
     size_type _size;
     value_type *_data;
 
-};  // End class MSArray
-
+};  // End class TMSArray
 
 #endif  //#ifndef FILE_TMSARRAY_HPP_INCLUDED
-
