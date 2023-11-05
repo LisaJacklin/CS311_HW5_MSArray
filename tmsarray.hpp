@@ -116,47 +116,54 @@ public:
 
     void resize(size_type newsize)
     {
-        TMSArray temp(newsize);
-        std::copy(begin(), begin() + std::min(_size, newsize), temp._data);
-        swap(temp);
+        if (newsize != _size) { // Resize only if the new size is different
+            TMSArray temp(newsize); // Create a temporary TMSArray with the new size
+            std::copy(begin(), begin() + std::min(_size, newsize), temp._data); // Copy the data
+            swap(temp); // Swap the temporary array with the current array
+        }
+        // Note: The destructor of temp will deallocate the old array memory.
     }
 
     iterator insert(iterator pos, const value_type & value)
     {
         size_type index = pos - begin();
-        resize(size() + 1);
-        iterator newPos = begin() + index;
-        std::rotate(newPos, end() - 1, end());
-        *newPos = value;
-        return newPos;
+        resize(size() + 1); // Increase the size by one before inserting
+        iterator newPos = begin() + index; // Find the new position for inserting
+        std::move_backward(newPos, end() - 1, end()); // Shift elements to the right
+        *newPos = value; // Insert the value
+        return newPos; // Return the position where the value was inserted
     }
 
     iterator erase(iterator pos)
     {
-        if (pos >= begin() && pos < end()) {
-            std::rotate(pos, pos + 1, end());
-            resize(size() - 1);
+        if (pos < end()) { // Check if pos is within the bounds
+            std::move(pos + 1, end(), pos); // Shift elements to the left
+            resize(size() - 1); // Decrease the size by one after erasing
         }
-        return pos;
+        return pos; // Return the position following the last removed element
     }
 
     void push_back(const value_type & value)
     {
-        insert(end(), value);
+        resize(size() + 1); // Increase the size by one before pushing back
+        _data[size() - 1] = value; // Add the new value
     }
 
     void pop_back()
     {
         if (size() > 0) {
-            resize(size() - 1);
+            resize(size() - 1); // Decrease the size by one
         }
+        // No need to deallocate memory since resize handles it.
     }
 
     void swap(TMSArray & other) noexcept
     {
-        std::swap(_size, other._size);
-        std::swap(_data, other._data);
+        using std::swap;
+        swap(_size, other._size); // Swap the sizes
+        swap(_data, other._data); // Swap the pointers to the data
     }
+
 
 // ***** TMSArray: data members *****
 private:

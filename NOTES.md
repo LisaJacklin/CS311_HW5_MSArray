@@ -105,4 +105,3 @@ TMSArray<Val>::~TMSArray() noexcept {
 ```
 
 It is important to follow the exception safety guarantees and make sure that the move operations do not throw exceptions. Implement all the functions in an exception-safe way, providing at least the basic guarantee, and ensure exception neutrality by allowing the exceptions from value type operations to propagate. Make sure to handle all edge cases like an empty array for `pop_back` and invalid iterators for `erase`.
-
