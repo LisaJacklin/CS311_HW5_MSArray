@@ -10,8 +10,16 @@
 #ifndef FILE_TMSARRAY_HPP_INCLUDED
 #define FILE_TMSARRAY_HPP_INCLUDED
 
+//-------------------------------------------------------------
+// Required Headers and Linkers
+//-------------------------------------------------------------
+
 #include <algorithm> // For std::copy, std::rotate, std::swap, std::min
 #include <cstddef>   // For std::size_t
+
+//-------------------------------------------------------------
+//Beginning of Class Template TMSArray
+//-------------------------------------------------------------
 
 // class TMSArray
 // Template for a Marvelously Smart Array.
@@ -19,31 +27,39 @@
 template <typename ValueType>
 class TMSArray {
 
-// ***** TMSArray: types *****
+//-------------------------------------------------------------
+// ***** TMSArray: types ****
+//-------------------------------------------------------------
 public:
     using size_type = std::size_t;
     using value_type = ValueType;
     using iterator = value_type *;
     using const_iterator = const value_type *;
 
-// ***** TMSArray: ctors, op=, dctor *****
+//-------------------------------------------------------------
+// ***** TMSArray:Constructors, Deconstructor, Operations *****
+//-------------------------------------------------------------
 public:
     // Default ctor and ctor from size
     explicit TMSArray(size_type thesize = 0)
         : _size(thesize), _data(new value_type[thesize]) {}
 
     // Copy constructor
+    //COMMENT AND FIX
     TMSArray(const TMSArray & other)
         : _size(other._size), _data(new value_type[_size])
     {
+        //using STL copy from Algorithm
+        //we can simply make a whole new copy from the original
         std::copy(other.begin(), other.end(), begin());
     }
 
     // Move constructor
+    //COMMENTS PLSSSS
     TMSArray(TMSArray && other) noexcept
         : _size(other._size), _data(other._data)
     {
-        other._size = 0;
+        other._size = 0; 
         other._data = nullptr;
     }
 
@@ -72,58 +88,68 @@ public:
         return *this;
     }
 
+//-------------------------------------------------------------
 // ***** TMSArray: general public operators *****
+//-------------------------------------------------------------
 public:
+    //[] Operators
     value_type & operator[](size_type index)
     {     
-        return _data[index]; // Access violation error checking should be handled externally
+        return _data[index];
+       // Access violation error checking should be handled externally
     }
-
     const value_type & operator[](size_type index) const
     {
-        return _data[index]; // Access violation error checking should be handled externally
+        return _data[index];
+        // Access violation error checking should be handled externally
     }
 
+    //size operator
     size_type size() const
     {
         return _size;
     }
 
+    //empty operator
     bool empty() const
     {
         return size() == 0;
     }
 
+    //begining iterator
     iterator begin()
     {
         return _data;
     }
-
     const_iterator begin() const
     {
         return _data;
     }
 
+    //ending iterator
     iterator end()
     {
         return begin() + size();
     }
-
     const_iterator end() const
     {
         return begin() + size();
     }
 
+    //resize Function
+    //COMMENT AND FIX
     void resize(size_type newsize)
     {
         if (newsize != _size) { // Resize only if the new size is different
-            TMSArray temp(newsize); // Create a temporary TMSArray with the new size
+            TMSArray temp(newsize);// Create a temporary TMSArray with the new size
             std::copy(begin(), begin() + std::min(_size, newsize), temp._data); // Copy the data
             swap(temp); // Swap the temporary array with the current array
-        }
+        } 
         // Note: The destructor of temp will deallocate the old array memory.
     }
 
+    //Insert Iterator
+    //COMMENT AND FIX
     iterator insert(iterator pos, const value_type & value)
     {
         size_type index = pos - begin();
@@ -134,6 +160,8 @@ public:
         return newPos; // Return the position where the value was inserted
     }
 
+    //Erase Iterator
+    //COMMENT AND FIX
     iterator erase(iterator pos)
     {
         if (pos < end()) { // Check if pos is within the bounds
@@ -143,6 +171,8 @@ public:
         return pos; // Return the position following the last removed element
     }
 
+    //push-back function
+    //COMMENT AND FIX  
     void push_back(const value_type & value)
     {
       if (_size == 0) {
@@ -155,7 +185,7 @@ public:
       _data[_size - 1] = value;
     }
 
-    //accepted
+  
     void pop_back()
     {
         if (_size > 0) {
@@ -172,8 +202,9 @@ public:
         swap(_data, other._data); // Swap the pointers to the data
     }
 
-
+//-------------------------------------------------------------
 // ***** TMSArray: data members *****
+//-------------------------------------------------------------
 private:
     size_type _size;
     value_type *_data;
