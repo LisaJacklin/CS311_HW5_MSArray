@@ -1,158 +1,175 @@
-// msarray.hpp 
+// tmsarray.hpp
 // Lisa Jacklin && Jewel Maldonado
 // 2023-11-01
 //
 // For CS 311 Fall 2023
-// Header for class MSArray
-// Marvelously smart array of int
+// Header for template class TMSArray
+// Template for a Marvelously Smart array
 // Assignment 5
 
-#ifndef FILE_MSARRAY_HPP_INCLUDED
-#define FILE_MSARRAY_HPP_INCLUDED
+#ifndef FILE_TMSARRAY_HPP_INCLUDED
+#define FILE_TMSARRAY_HPP_INCLUDED
 
-#include <algorithm> // For std::copy, std::move_backward, std::rotate, std::swap
+#include <algorithm> // For std::copy, std::move_backward, std::swap, std::min
 #include <cstddef>   // For std::size_t
 
-class MSArray {
+// class TMSArray
+// Template for a Marvelously Smart Array.
+// Resizable, copyable/movable, exception-safe.
+template <typename ValueType>
+class TMSArray {
+
+// ***** TMSArray: types *****
 public:
     using size_type = std::size_t;
-    using value_type = int;
+    using value_type = ValueType;
     using iterator = value_type *;
     using const_iterator = const value_type *;
 
-    // Constructor from size, with optional initialization value
-    explicit MSArray(size_type size = 0, value_type init_val = value_type())
-        : _size(size), _data(size ? new value_type[size] : nullptr) {
-        std::fill(begin(), end(), init_val);
-    }
+// ***** TMSArray: ctors, op=, dctor *****
+public:
+    // Default ctor and ctor from size
+    explicit TMSArray(size_type thesize = 0)
+        : _size(thesize), _data(new value_type[thesize]) {}
 
     // Copy constructor
-    MSArray(const MSArray & other)
-        : _size(other._size), _data(other._size ? new value_type[other._size] : nullptr) {
+    TMSArray(const TMSArray & other)
+        : _size(other._size), _data(new value_type[_size])
+    {
         std::copy(other.begin(), other.end(), begin());
     }
 
     // Move constructor
-    MSArray(MSArray && other) noexcept
-        : _size(other._size), _data(other._data) {
+    TMSArray(TMSArray && other) noexcept
+        : _size(other._size), _data(other._data)
+    {
         other._size = 0;
         other._data = nullptr;
     }
 
     // Destructor
-    ~MSArray() {
-        delete[] _data;
+    ~TMSArray()
+    {
+        delete [] _data;
     }
 
     // Copy assignment operator
-    MSArray & operator=(const MSArray & other) {
+    TMSArray & operator=(const TMSArray & other)
+    {
         if (this != &other) {
-            MSArray temp(other);
+            TMSArray temp(other); // Copy-and-swap idiom
             swap(temp);
         }
         return *this;
     }
 
     // Move assignment operator
-    MSArray & operator=(MSArray && other) noexcept {
-        swap(other);
+    TMSArray & operator=(TMSArray && other) noexcept
+    {
+        if (this != &other) {
+            swap(other);
+        }
         return *this;
     }
 
-    // Subscript operator for non-const objects
-    value_type & operator[](size_type index) {
-        return _data[index];
+// ***** TMSArray: general public operators *****
+public:
+    value_type & operator[](size_type index)
+    {     
+        return _data[index]; // Access violation error checking should be handled externally
     }
 
-    // Subscript operator for const objects
-    const value_type & operator[](size_type index) const {
-        return _data[index];
+    const value_type & operator[](size_type index) const
+    {
+        return _data[index]; // Access violation error checking should be handled externally
     }
 
-    // Returns the size of the array
-    size_type size() const {
+    size_type size() const
+    {
         return _size;
     }
 
-    // Checks if the array is empty
-    bool empty() const {
-        return _size == 0;
+    bool empty() const
+    {
+        return size() == 0;
     }
 
-    // Returns an iterator to the beginning
-    iterator begin() {
+    iterator begin()
+    {
         return _data;
     }
 
-    // Returns a const iterator to the beginning
-    const_iterator begin() const {
+    const_iterator begin() const
+    {
         return _data;
     }
 
-    // Returns an iterator to the end
-    iterator end() {
-        return begin() + _size;
+    iterator end()
+    {
+        return begin() + size();
     }
 
-    // Returns a const iterator to the end
-    const_iterator end() const {
-        return begin() + _size;
+    const_iterator end() const
+    {
+        return begin() + size();
     }
 
-    // Resizes the array to the specified size
-    void resize(size_type newsize) {
-        if (newsize != _size) {
-            value_type* newData = newsize ? new value_type[newsize] : nullptr;
-            if (_data) {
-                std::copy(begin(), begin() + std::min(_size, newsize), newData);
-                delete[] _data;
-            }
-            _data = newData;
-            _size = newsize;
+    void resize(size_type newsize)
+    {
+        if (newsize != _size) { // Resize only if the new size is different
+            TMSArray temp(newsize); // Create a temporary TMSArray with the new size
+            std::copy(begin(), begin() + std::min(_size, newsize), temp._data); // Copy the data
+            swap(temp); // Swap the temporary array with the current array
         }
+        // Note: The destructor of temp will deallocate the old array memory.
     }
 
-    // Inserts an element at the specified position
-    iterator insert(iterator pos, value_type value) {
+    iterator insert(iterator pos, const value_type & value)
+    {
         size_type index = pos - begin();
-        resize(_size + 1);
-        iterator newPos = begin() + index;
-        std::move_backward(newPos, end() - 1, end());
-        *newPos = value;
-        return newPos;
+        resize(size() + 1); // Increase the size by one before inserting
+        iterator newPos = begin() + index; // Find the new position for inserting
+        std::move_backward(newPos, end() - 1, end()); // Shift elements to the right
+        *newPos = value; // Insert the value
+        return newPos; // Return the position where the value was inserted
     }
 
-    // Erases an element at the specified position
-    iterator erase(iterator pos) {
-        if (pos != end()) {
-            std::move(pos + 1, end(), pos);
-            resize(_size - 1);
+    iterator erase(iterator pos)
+    {
+        if (pos < end()) { // Check if pos is within the bounds
+            std::move(pos + 1, end(), pos); // Shift elements to the left
+            resize(size() - 1); // Decrease the size by one after erasing
         }
-        return pos;
+        return pos; // Return the position following the last removed element
     }
 
-    // Adds an element to the end
-    void push_back(value_type value) {
-        resize(_size + 1);
-        _data[_size - 1] = value;
+    void push_back(const value_type & value)
+    {
+        resize(size() + 1); // Increase the size by one before pushing back
+        _data[size() - 1] = value; // Add the new value
     }
 
-    // Removes the last element
-    void pop_back() {
-        if (_size > 0) {
-            resize(_size - 1);
+    void pop_back()
+    {
+        if (size() > 0) {
+            resize(size() - 1); // Decrease the size by one
         }
+        // No need to deallocate memory since resize handles it.
     }
 
-    // Swaps the contents of this array with another
-    void swap(MSArray & other) noexcept {
-        std::swap(_size, other._size);
-        std::swap(_data, other._data);
+    void swap(TMSArray & other) noexcept
+    {
+        using std::swap;
+        swap(_size, other._size); // Swap the sizes
+        swap(_data, other._data); // Swap the pointers to the data
     }
 
+
+// ***** TMSArray: data members *****
 private:
-    size_type _size;   // Size of the array
-    value_type *_data; // Pointer to the array of elements
-};
+    size_type _size;
+    value_type *_data;
 
-#endif // #ifndef FILE_MSARRAY_HPP
+};  // End class TMSArray
+
+#endif  //#ifndef FILE_TMSARRAY_HPP_INCLUDED
