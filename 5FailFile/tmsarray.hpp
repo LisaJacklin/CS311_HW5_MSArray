@@ -46,13 +46,22 @@ public:
 
     // Copy constructor
     //COMMENT AND FIX
+        //TMSArray(const TMSArray & other)
+        //    : _size(other._size), _data(new value_type[_size])
+        //{
+        //    //using STL copy from Algorithm
+        //    //we can simply make a whole new copy from the original
+        //    std::copy(other.begin(), other.end(), begin());
+        //}
     TMSArray(const TMSArray & other)
-        : _size(other._size), _data(new value_type[_size])
+    try : _size(other._size), _data(new value_type[_size]) 
     {
-        //using STL copy from Algorithm
-        //we can simply make a whole new copy from the original
         std::copy(other.begin(), other.end(), begin());
+    } catch(...) {
+        delete [] _data;
+        throw;
     }
+    
 
     // Move constructor
     //COMMENTS PLSSSS
@@ -137,52 +146,94 @@ public:
     }
 
     //resize Function
-    //COMMENT AND FIX
+        //COMMENT AND FIX
+        //void resize(size_type newsize)
+        //{
+        //    if (newsize != _size) { // Resize only if the new size is different
+        //        TMSArray temp(newsize);// Create a temporary TMSArray with the new size
+        //        std::copy(begin(), begin() + std::min(_size, newsize), temp._data); // Copy the data
+        //        swap(temp); // Swap the temporary array with the current array
+        //    } 
+        //    // Note: The destructor of temp will deallocate the old array memory.
+        //}
     void resize(size_type newsize)
     {
-        if (newsize != _size) { // Resize only if the new size is different
-            TMSArray temp(newsize);// Create a temporary TMSArray with the new size
-            std::copy(begin(), begin() + std::min(_size, newsize), temp._data); // Copy the data
+        if (newsize > _size) { // Resize only if the new size is larger
+            TMSArray temp(newsize); // Create a temporary TMSArray with the new size
+            std::copy(begin(), end(), temp.begin()); // Copy the existing data
             swap(temp); // Swap the temporary array with the current array
-        } 
-        // Note: The destructor of temp will deallocate the old array memory.
+        } else if (newsize < _size) {
+            // For shrinking, we can simply update the size and not touch the memory.
+            // The unused space will be handled when the destructor is called or if
+            // the next resize increases the size of the array again.
+            _size = newsize;
+        }
+        // If newsize == _size, do nothing.
     }
+
 
     //Insert Iterator
     //COMMENT AND FIX
     iterator insert(iterator pos, const value_type & value)
     {
-        size_type index = pos - begin();
-        resize(size() + 1); // Increase the size by one before inserting
-        iterator newPos = begin() + index; // Find the new position for inserting
-        std::move_backward(newPos, end() - 1, end()); // Shift elements to the right
-        *newPos = value; // Insert the value
-        return newPos; // Return the position where the value was inserted
+        if (pos == end()) { // Special case for inserting at the end
+            push_back(value); // Use push_back to minimize reallocation logic
+            return end() - 1; // Return the iterator to the new element
+        } else {
+            size_type index = pos - begin();
+            resize(size() + 1); // Increase the size by one before inserting
+            iterator newPos = begin() + index; // Find the new position for inserting
+            std::move_backward(newPos, end() - 1, end()); // Shift elements to the right
+            *newPos = value; // Insert the value
+            return newPos; // Return the position where the value was inserted
+        }
     }
 
     //Erase Iterator
     //COMMENT AND FIX
+        //iterator erase(iterator pos)
+        //{
+        //    if (pos < end()) { // Check if pos is within the bounds
+        //        std::move(pos + 1, end(), pos); // Shift elements to the left
+        //        resize(size() - 1); // Decrease the size by one after erasing
+        //    }
+        //    return pos; // Return the position following the last removed element
+        //}
     iterator erase(iterator pos)
     {
-        if (pos < end()) { // Check if pos is within the bounds
-            std::move(pos + 1, end(), pos); // Shift elements to the left
-            resize(size() - 1); // Decrease the size by one after erasing
+        if (pos < end()) {
+            std::move(pos + 1, end(), pos);
+            --_size; // Just decrease the size, no need for reallocate
         }
-        return pos; // Return the position following the last removed element
+        return pos;
     }
 
     //push-back function
     //COMMENT AND FIX  
+        //void push_back(const value_type & value)
+        //{
+        //  if (_size == 0) {
+        //    // Handle going from 0 to 1 element.
+        //    resize(1);
+        //  } else {
+        //    // Allocate more space to avoid frequent reallocations.
+        //    resize(_size + 1);
+        //  }
+        //  _data[_size - 1] = value;
+        //}
     void push_back(const value_type & value)
     {
-      if (_size == 0) {
-        // Handle going from 0 to 1 element.
-        resize(1);
-      } else {
-        // Allocate more space to avoid frequent reallocations.
-        resize(_size + 1);
-      }
-      _data[_size - 1] = value;
+        // If there's enough space, we can simply add the new element.
+        if (_size == 0) {
+            resize(1);
+            _data[0] = value;
+        } else {
+            // We need to check if we have extra space to avoid reallocation
+            // on every push_back. If not, then only we resize.
+            // If you had a member tracking capacity, you'd check it here.
+            resize(_size + 1);
+            _data[_size - 1] = value; // Note that _size has already been increased by resize
+        }
     }
 
   
